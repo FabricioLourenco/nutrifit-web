@@ -1,10 +1,18 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+// app/home/page.tsx
 
-export default function Home() {
+"use client";
+
+import Carousel from "./components/Carousel";
+import LoginForm from "./components/LoginForm";
+
+export default function LoginPage() {
   return (
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-  )
+    <div className="flex h-screen w-full flex-col md:flex-row">
+      {/* Carrossel */}
+      <Carousel />
+
+      {/* Área de Login */}
+      <LoginForm />
+    </div>
+  );
 }
