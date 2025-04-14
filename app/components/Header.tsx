@@ -5,12 +5,14 @@ import Link from "next/link";
 export default function Header() {
   return (
     <header className="bg-blue-600 text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        {/* Título à esquerda */}
         <Link href="/" className="text-2xl font-bold tracking-tight">
           NutriFit
         </Link>
 
-        <nav className="space-x-4">
+        {/* Navegação à direita */}
+        <nav className="flex space-x-8">
           <Link href="/" className="hover:text-gray-300 transition-colors">
             Início
           </Link>
@@ -26,7 +28,7 @@ export default function Header() {
           >
             Sobre
           </Link>
-        </nav>""
+        </nav>
       </div>
     </header>
   );
