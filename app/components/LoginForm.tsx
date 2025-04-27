@@ -4,10 +4,11 @@ import Link from "next/link"; // Importando o componente Link
 
 const LoginForm = () => {
   return (
-    <div className="w-full md:w-[30%] flex items-center justify-center bg-white p-8 shadow-lg">
+    <div className="w-full md:w-[30%] flex items-start justify-center bg-white p-8 shadow-lg">
+
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <img src="/logo.svg" alt="Logo" className="mx-auto mb-4 h-12" />
+        <img src="/logotipo/logo.png" alt="Logo" className="mx-auto mb-0 h-35 w-35" />
           <h2 className="text-2xl font-bold">Acesse sua conta</h2>
         </div>
 

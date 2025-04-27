@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-const images = ["/login/img1.jpg", "/login/img2.jpg", "/login/img3.jpg"];
+const images = ["/login/img1.jpeg", "/login/img2.jpeg", "/login/img3.jpeg"];
 
 const Carousel = () => {
   const [current, setCurrent] = useState(0);
