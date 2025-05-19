@@ -1,18 +1,6 @@
-// app/home/page.tsx
+// app/page.tsx
+import { redirect } from "next/navigation";
 
-"use client";
-
-import Carousel from "./components/Carousel";
-import LoginForm from "./components/LoginForm";
-
-export default function LoginPage() {
-  return (
-    <div className="flex h-screen w-full flex-col md:flex-row">
-      {/* Carrossel */}
-      <Carousel />
-
-      {/* Área de Login */}
-      <LoginForm />
-    </div>
-  );
+export default function Home() {
+  redirect("/login");
 }

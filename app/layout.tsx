@@ -12,7 +12,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={"antialised"}>
-        <Header /> {/* ✅ Header adicionado aqui */}
+       
         {children}
       </body>
     </html>
