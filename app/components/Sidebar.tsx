@@ -34,7 +34,7 @@ export default function Sidebar({
           Home
         </Link>
         <Link
-          href="/perfil-user"
+          href="/perfil"
           className="flex items-center gap-2 text-gray-700 hover:text-lime-600 transition-colors"
         >
           <User className="w-5 h-5" />

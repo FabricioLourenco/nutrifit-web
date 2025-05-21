@@ -27,7 +27,7 @@ export function HeaderBar({ toggleSidebar }: HeaderBarProps) {
           Home
         </Link>
         <Link
-          href="/perfil-user"
+          href="/perfil"
           className="text-white hover:text-lime-600 font-bold"
         >
           Perfil
@@ -37,12 +37,6 @@ export function HeaderBar({ toggleSidebar }: HeaderBarProps) {
           className="text-white hover:text-lime-600 font-bold"
         >
           Substituição
-        </Link>
-        <Link
-          href="/settings"
-          className="text-white hover:text-lime-600 font-bold"
-        >
-          Settings
         </Link>
       </div>
     </div>
