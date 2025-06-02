@@ -1,10 +1,15 @@
 "use client";
 
+import { useState } from "react";
+
 export default function SignupForm() {
+  const [isNutricionista, setIsNutricionista] = useState(false);
+
   return (
     <div className="w-full md:w-[30%] p-8 bg-white shadow-md rounded-lg flex flex-col justify-start">
       <img src="/logotipo/logo.png" alt="Logo" className="mx-auto mb-0 h-35 w-35" />
       <h2 className="text-2xl font-bold mb-0 text-center">Inscreva-se</h2>
+
       <form className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700" htmlFor="nome">Nome</label>
@@ -48,6 +53,20 @@ export default function SignupForm() {
             placeholder="Confirme sua senha"
             className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+        </div>
+
+        {/* Checkbox: Sou nutricionista */}
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="nutricionista"
+            checked={isNutricionista}
+            onChange={() => setIsNutricionista(!isNutricionista)}
+            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          />
+          <label htmlFor="nutricionista" className="text-sm text-gray-700">
+            Sou nutricionista
+          </label>
         </div>
 
         <div className="mt-6">
