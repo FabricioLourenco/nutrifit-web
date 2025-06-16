@@ -26,9 +26,7 @@ export function MealCard({ title, tag, difficulty, info, image }: MealCardProps)
             </p>
           </div>
           <div className="mt-2 md:mt-0 md:text-right">
-            <XButtonHome className="bg-lime-500 hover:bg-lime-600 text-white">
-              Adicionar comentários
-            </XButtonHome>
+            
           </div>
         </div>
       </div>
