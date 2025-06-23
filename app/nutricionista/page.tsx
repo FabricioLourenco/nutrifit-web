@@ -7,6 +7,7 @@ import { PacientesList } from "../components/PacientesList";
 import { DietaForm } from "../components/DietaForm";
 import { DietaCard } from "../components/DietaCard";
 import { Dieta } from "../components/types";
+import Link from "next/link";
 
 interface Paciente {
   id: string;
@@ -16,7 +17,8 @@ interface Paciente {
 
 export default function NutricionistaPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [pacienteSelecionado, setPacienteSelecionado] = useState<Paciente | null>(null);
+  const [pacienteSelecionado, setPacienteSelecionado] =
+    useState<Paciente | null>(null);
   const [dietas, setDietas] = useState<Dieta[]>([]);
   const [editando, setEditando] = useState<Dieta | null>(null);
 
@@ -64,7 +66,9 @@ export default function NutricionistaPage() {
             </div>
             <div className="bg-white rounded-lg shadow p-4">
               <p className="text-sm text-gray-500">Dietas Cadastradas</p>
-              <p className="text-2xl font-bold text-blue-600">{dietas.length}</p>
+              <p className="text-2xl font-bold text-blue-600">
+                {dietas.length}
+              </p>
             </div>
             <div className="bg-white rounded-lg shadow p-4">
               <p className="text-sm text-gray-500">Consultas Agendadas</p>
@@ -77,15 +81,27 @@ export default function NutricionistaPage() {
           </div>
 
           {/* Botões de Ação */}
+          {/* Botões de Ação */}
           <div className="flex flex-wrap gap-4 mb-6">
-            {["Meus Pacientes", "Consultas", "Relatórios", "Avaliações"].map((item) => (
-              <button
-                key={item}
-                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow"
-              >
-                {item}
-              </button>
-            ))}
+            {["Meus Pacientes", "Consultas", "Relatórios", "Avaliações"].map(
+              (item) =>
+                item === "Consultas" ? (
+                  // Envolvemos o botão "Consultas" com o componente Link
+                  <Link key={item} href="/consultas" passHref>
+                    <button className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow">
+                      {item}
+                    </button>
+                  </Link>
+                ) : (
+                  // Os outros botões continuam como estavam
+                  <button
+                    key={item}
+                    className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow"
+                  >
+                    {item}
+                  </button>
+                )
+            )}
           </div>
 
           {/* Conteúdo principal */}
@@ -129,7 +145,9 @@ export default function NutricionistaPage() {
                   />
                 </>
               ) : (
-                <p className="text-gray-500">Selecione um paciente para ver as dietas</p>
+                <p className="text-gray-500">
+                  Selecione um paciente para ver as dietas
+                </p>
               )}
             </div>
           </div>
