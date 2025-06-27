@@ -1,63 +1,82 @@
-// app/consultas/page.tsx
 "use client";
 
-import { useState } from "react";
+// Importações necessárias, incluindo useEffect
+import { useState, useEffect } from "react"; 
 import Sidebar from "../components/Sidebar";
 import { HeaderBar } from "../components/HeaderBar";
 import { AppointmentCalendar } from "../components/AppointmentCalendar";
-import { DailySchedule } from "../components/DailySchedule";
-import { AppointmentModal } from "../components/AppointmentModal"; // Reutilizando nosso modal
+import { SchedulingForm } from "../components/SchedulingForm"; // Importando o formulário novamente
+import { AppointmentModal } from "../components/AppointmentModal"; 
 
-// Dados iniciais de exemplo (consultas já marcadas)
 const initialEvents = [
-  { id: '1', title: 'Consulta - João da Silva', start: new Date() }
+  { id: "1", title: "Consulta - João da Silva", start: new Date() },
 ];
 
 export default function ConsultasPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  
+  // Solução para o erro de hidratação
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  useEffect(() => {
+    setSelectedDate(new Date());
+  }, []);
+
   const [events, setEvents] = useState(initialEvents);
   const [isModalOpen, setModalOpen] = useState(false);
 
   const handleSave = (title: string) => {
+    if (!selectedDate) return; 
+
     const newEvent = {
       id: String(Date.now()),
       title,
-      // Por simplicidade, adiciona sempre ao meio-dia. Pode ser melhorado no modal.
       start: new Date(selectedDate.setHours(12, 0, 0)),
     };
     setEvents([...events, newEvent]);
     setModalOpen(false);
   };
 
+  // Enquanto a data não é definida no cliente, mostramos um loading
+  if (!selectedDate) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <p>Carregando agenda...</p>
+      </div>
+    );
+  }
+
+  // O JSX completo, com o SchedulingForm de volta
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+      />
 
       <div className="flex-1 p-4 md:p-8">
         <HeaderBar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
         <main>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 bg-white p-4 rounded-lg shadow-md">
-              <AppointmentCalendar 
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            {/* Coluna do Calendário */}
+            <div className="lg:col-span-2 bg-white p-4 rounded-xl shadow-lg flex justify-center items-center">
+              <AppointmentCalendar
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
               />
             </div>
 
-            <div className="md:col-span-1">
-              <DailySchedule 
-                date={selectedDate}
-                events={events}
-                onAdd={() => setModalOpen(true)}
-              />
+            {/* Coluna do Formulário de Agendamento (RESTAURADA) */}
+            <div className="lg:col-span-1">
+              <SchedulingForm selectedDate={selectedDate} />
             </div>
           </div>
         </main>
       </div>
-      
-      <AppointmentModal 
+
+      {/* O AppointmentModal foi mantido, mas não está sendo chamado. Você pode removê-lo se o SchedulingForm for suficiente */}
+      <AppointmentModal
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
         onSave={handleSave}

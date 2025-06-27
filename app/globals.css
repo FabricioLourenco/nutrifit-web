@@ -1,2 +1,20 @@
 @import "tailwindcss";
 
+/* Adicione este código ao final do seu arquivo app/globals.css */
+
+.rdp-root {
+  /* É AQUI QUE VOCÊ CONTROLA O TAMANHO, COMO MANDA A DOCUMENTAÇÃO */
+  --rdp-day-height: 100px;
+  --rdp-day-width: 100px;
+
+  /* Cores e fontes para combinar com seu layout */
+  --rdp-accent-color: #84cc16;      /* Cor principal (dias selecionados) */
+  --rdp-selected-color: #ffffff;   /* Cor do texto do dia selecionado */
+  
+  font-size: 1.25rem; /* Aumenta o tamanho de todas as fontes de uma vez */
+}
+
+/* Ajuste fino no cabeçalho dos dias da semana para um melhor espaçamento */
+.rdp-head_cell {
+  padding-bottom: 0.5rem;
+}

@@ -1,42 +1,29 @@
-// app/components/AppointmentCalendar.tsx
 "use client";
-import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
-import { ptBR } from 'date-fns/locale';
+
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css"; // Importa o CSS base da estrutura
+import { ptBR } from "date-fns/locale";
 
 interface CalendarProps {
   selectedDate: Date;
   onDateChange: (date: Date) => void;
 }
 
-export function AppointmentCalendar({ selectedDate, onDateChange }: CalendarProps) {
-  // Estilos customizados para combinar com seu app
-  const css = `
-    .rdp {
-      --rdp-cell-size: 45px;
-      --rdp-caption-font-size: 1.25rem;
-      --rdp-accent-color: #84cc16; /* Cor lime */
-      --rdp-background-color: #bef264;
-      border: 1px solid #e2e8f0;
-      border-radius: 0.5rem;
-      padding: 1rem;
-    }
-    .rdp-head_cell {
-      font-weight: 600;
-    }
-  `;
-
+export function AppointmentCalendar({
+  selectedDate,
+  onDateChange,
+}: CalendarProps) {
+  // O componente agora está 100% limpo, sem nenhuma customização de estilo.
+  // Ele apenas renderiza o calendário, que pegará os estilos do globals.css
   return (
-    <>
-      <style>{css}</style>
-      <DayPicker
+    <DayPicker
         mode="single"
+        navLayout="around"
         selected={selectedDate}
         onSelect={(date) => date && onDateChange(date)}
         locale={ptBR}
-        className="w-full flex justify-center"
         showOutsideDays
+        numberOfMonths={1} pagedNavigation
       />
-    </>
   );
 }
