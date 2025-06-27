@@ -69,7 +69,7 @@ const LoginForm = () => {
       if (decoded.TipoUsuario === "Nutricionista") {
         router.push("/nutricionista");
       } else if (decoded.TipoUsuario === "Paciente") {
-        router.push("/paciente");
+        router.push("/perfil");
       } else {
         alert("Tipo de usuário desconhecido.");
       }
