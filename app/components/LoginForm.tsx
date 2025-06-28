@@ -45,7 +45,7 @@ const LoginForm = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": "d657b7829cdcee83f6d70012fffebd1622a9f940ed414b0f41885a782e29a906", // Substitua pela sua chave real
+          "x-api-key": "d657b7829cdcee83f6d70012fffebd1622a9f940ed414b0f41885a782e29a906", 
         },
         body: JSON.stringify(payload),
       });
@@ -69,7 +69,7 @@ const LoginForm = () => {
       if (decoded.TipoUsuario === "Nutricionista") {
         router.push("/nutricionista");
       } else if (decoded.TipoUsuario === "Paciente") {
-        router.push("/paciente");
+        router.push("/perfil");
       } else {
         alert("Tipo de usuário desconhecido.");
       }

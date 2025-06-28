@@ -2,23 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-// Função para decodificar o token JWT (INTACTA)
-function decodeJWT(token: string): any | null {
-  try {
-    const payloadBase64 = token.split(".")[1];
-    const payload = atob(payloadBase64);
-    return JSON.parse(payload);
-  } catch (e) {
-    console.error("Erro ao decodificar token:", e);
-    return null;
-  }
-}
-
-// Interfaces para os dados da API
-interface Nutricionista {
-  id: number;
-  usuarioId: number;
-}
+// Interface simplificada para o paciente
 interface Paciente {
   usuarioId: number;
 }
@@ -35,62 +19,38 @@ export function SchedulingForm({ selectedDate }: SchedulingFormProps) {
   const [observacoes, setObservacoes] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- LÓGICA DE BUSCA CORRIGIDA EM DUAS ETAPAS ---
+  // Lógica de busca com ID fixo para desenvolvimento
   useEffect(() => {
-    const fetchCorrectPatients = async () => {
+    const fetchPatients = async () => {
+      const nutricionistaIdParaTeste = 13; 
+
       try {
         setIsLoading(true);
-        // 1. Obter o ID do usuário logado a partir do token
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-          throw new Error("Token de autenticação não encontrado.");
-        }
-        const decodedToken = decodeJWT(token);
-        const loggedInUsuarioId = decodedToken?.nameid;
-        if (!loggedInUsuarioId) {
-          throw new Error("ID do usuário não encontrado no token.");
-        }
-
-        // 2. Buscar TODOS os nutricionistas para encontrar o ID da entidade correto
-        const nutricionistasResponse = await fetch("https://localhost:7058/api/v1/Nutricionista/buscar-nutricionistas");
-        if (!nutricionistasResponse.ok) throw new Error("Falha ao buscar a lista de nutricionistas.");
-        
-        const nutricionistasResult = await nutricionistasResponse.json();
-        if (!nutricionistasResult.sucesso) throw new Error("Erro na resposta da API de nutricionistas.");
-
-        // 3. Encontrar o nutricionista que corresponde ao usuário logado
-        const nutricionistaLogado = nutricionistasResult.data.find(
-          (n: Nutricionista) => n.usuarioId === Number(loggedInUsuarioId)
+        const response = await fetch(
+          `https://localhost:7058/api/v1/Paciente/buscar-pacientes-por-nutricionista?nutricionistaId=${nutricionistaIdParaTeste}`
         );
-        if (!nutricionistaLogado) {
-          throw new Error("Nutricionista correspondente ao usuário logado não encontrado.");
+        if (!response.ok) {
+          throw new Error("Falha ao buscar pacientes");
         }
-        const nutricionistaEntityId = nutricionistaLogado.id; // Este é o ID correto (ex: 13)
-
-        // 4. Finalmente, buscar os pacientes usando o ID CORRETO do nutricionista
-        const pacientesResponse = await fetch(`https://localhost:7058/api/v1/Paciente/buscar-pacientes-por-nutricionista?nutricionistaId=${nutricionistaEntityId}`);
-        if (!pacientesResponse.ok) throw new Error("Falha ao buscar os pacientes.");
-
-        const pacientesResult = await pacientesResponse.json();
-        if (pacientesResult.sucesso && Array.isArray(pacientesResult.data)) {
-          setPatients(pacientesResult.data);
-        } else {
-          setPatients([]);
+        
+        const result = await response.json();
+        
+        if (result.sucesso && Array.isArray(result.data)) {
+          setPatients(result.data);
         }
-
       } catch (error) {
-        console.error("Erro no processo de busca:", error);
-        alert((error as Error).message);
+        console.error("Erro ao buscar pacientes:", error);
+        alert("Não foi possível carregar a lista de pacientes.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchCorrectPatients();
-  }, []); // Roda apenas uma vez quando o componente é montado
+    fetchPatients();
+  }, []);
 
+  // --- FUNÇÃO DE SUBMIT JÁ CORRETA ---
   const handleSubmit = async (e: React.FormEvent) => {
-    // A lógica de submit permanece a mesma
     e.preventDefault();
     if (!selectedPatient) {
       alert("Por favor, selecione um paciente.");
@@ -101,6 +61,7 @@ export function SchedulingForm({ selectedDate }: SchedulingFormProps) {
     const dataHora = new Date(selectedDate);
     dataHora.setHours(hours, minutes, 0, 0);
 
+    // O payload é montado exatamente como a sua API espera
     const payload = {
       id: 0,
       dataHora: dataHora.toISOString(),
@@ -109,12 +70,14 @@ export function SchedulingForm({ selectedDate }: SchedulingFormProps) {
     };
 
     try {
+      // A requisição fetch já está com o método, headers e body corretos
       const response = await fetch(
         "https://localhost:7058/api/v1/Consulta/inserir-consulta",
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json-patch+json",
+            // O Content-Type corresponde ao do seu cURL
+            "Content-Type": "application/json-patch+json", 
           },
           body: JSON.stringify(payload),
         }
@@ -157,7 +120,6 @@ export function SchedulingForm({ selectedDate }: SchedulingFormProps) {
             <option value="" disabled>
               {isLoading ? "Carregando pacientes..." : (patients.length > 0 ? "Selecione um paciente" : "Nenhum paciente encontrado")}
             </option>
-            {/* Exibindo o ID do usuário como texto, pois o nome não está disponível na resposta */}
             {patients.map((paciente) => (
               <option key={paciente.usuarioId} value={paciente.usuarioId}>
                 ID do Paciente: {paciente.usuarioId}
