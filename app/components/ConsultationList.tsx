@@ -1,15 +1,15 @@
-// app/components/ConsultationList.tsx
 "use client";
 
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-// Interface para o objeto de consulta
+// --- ATUALIZAÇÃO: Adicionando 'nomePaciente' à interface ---
 interface Consulta {
   id: number;
   dataHora: string;
   observacoes: string;
   pacienteId: number;
+  nomePaciente: string; // Adicionamos o campo que agora vem da API
 }
 
 interface ConsultationListProps {
@@ -29,8 +29,9 @@ export function ConsultationList({ title, consultations, isLoading }: Consultati
           consultations.map((consulta) => (
             <div key={consulta.id} className="p-4 rounded-lg bg-gray-50 border border-gray-200">
               <div className="flex justify-between items-center">
+                {/* --- ATUALIZAÇÃO: Exibindo o nome do paciente --- */}
                 <p className="font-semibold text-gray-700">
-                  Paciente ID: {consulta.pacienteId}
+                  Paciente: {consulta.nomePaciente}
                 </p>
                 <p className="text-sm font-medium text-lime-600">
                   {format(new Date(consulta.dataHora), "dd/MM/yyyy 'às' HH:mm", {

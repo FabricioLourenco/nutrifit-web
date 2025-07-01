@@ -18,6 +18,7 @@ function decodeJWT(token: string): any | null {
 interface Paciente {
   id: number;
   usuarioId: number;
+  nome: string; 
 }
 interface Nutricionista {
   id: number;
@@ -36,7 +37,7 @@ export function SchedulingForm({ selectedDate }: SchedulingFormProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // A lógica de busca dos pacientes para o dropdown de agendamento permanece aqui
+    // Lógica de busca dos pacientes
     const fetchCorrectPatients = async () => {
       try {
         setIsLoading(true);
@@ -77,15 +78,30 @@ export function SchedulingForm({ selectedDate }: SchedulingFormProps) {
       alert("Por favor, selecione um paciente.");
       return;
     }
-    const [hours, minutes] = time.split(":").map(Number);
-    const dataHora = new Date(selectedDate);
-    dataHora.setHours(hours, minutes, 0, 0);
 
+    // --- AQUI ESTÁ A CORREÇÃO ---
+    const [hours, minutes] = time.split(":").map(Number);
+    // Criamos a data em UTC para evitar a conversão de fuso horário.
+    const dataHora = new Date(Date.UTC(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      hours,
+      minutes
+    ));
+
+    const pacienteSelecionado = patients.find(p => p.id === Number(selectedPatient));
+    if (!pacienteSelecionado) {
+        alert("Paciente selecionado não encontrado na lista.");
+        return;
+    }
+    
     const payload = {
       id: 0,
-      dataHora: dataHora.toISOString(),
+      dataHora: dataHora.toISOString(), // Agora o ISO string estará com a hora correta
       observacoes: observacoes,
       pacienteId: Number(selectedPatient),
+      nomePaciente: pacienteSelecionado.nome 
     };
 
     try {
@@ -96,7 +112,7 @@ export function SchedulingForm({ selectedDate }: SchedulingFormProps) {
       });
       if (response.ok) {
         alert("Consulta agendada com sucesso!");
-        window.location.reload(); // Recarrega a página para atualizar as listas
+        window.location.reload(); 
       } else {
         const errorData = await response.json();
         alert(`Erro ao agendar consulta: ${errorData.mensagens?.[0] || response.statusText}`);
@@ -126,7 +142,7 @@ export function SchedulingForm({ selectedDate }: SchedulingFormProps) {
             </option>
             {patients.map((paciente) => (
               <option key={paciente.id} value={paciente.id}>
-                ID do Paciente: {paciente.usuarioId}
+                {paciente.nome}
               </option>
             ))}
           </select>

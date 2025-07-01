@@ -14,31 +14,31 @@ interface Consulta {
   dataHora: string;
   observacoes: string;
   pacienteId: number;
+  nomePaciente?: string; // O nome é opcional, pois será adicionado depois
 }
 interface Paciente {
   id: number;
   usuarioId: number;
+  nome: string;
 }
 
 export default function ConsultasPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  // Estados gerenciados pela página
   const [allPatients, setAllPatients] = useState<Paciente[]>([]);
   const [patientConsultations, setPatientConsultations] = useState<Consulta[]>([]);
   const [selectedPatientForFilter, setSelectedPatientForFilter] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Efeito para buscar a lista de pacientes do nutricionista logado
+  // Efeito para buscar a lista de pacientes do nutricionista (INTACTO)
   useEffect(() => {
     const fetchPatients = async () => {
       setIsLoading(true);
       try {
         const token = localStorage.getItem("authToken");
         if (!token) return;
-        
         const decodedToken = JSON.parse(atob(token.split('.')[1]));
         const loggedInUsuarioId = decodedToken?.Id;
         if (!loggedInUsuarioId) return;
@@ -62,7 +62,7 @@ export default function ConsultasPage() {
     fetchPatients();
   }, []);
 
-  // Função para buscar as consultas quando o botão for clicado
+  // --- AQUI ESTÁ A LÓGICA CORRIGIDA ---
   const handleSearchConsultations = async () => {
     if (!selectedPatientForFilter) {
       alert("Por favor, selecione um paciente para buscar.");
@@ -71,10 +71,27 @@ export default function ConsultasPage() {
     setIsSearching(true);
     setPatientConsultations([]);
     try {
-      const response = await fetch(`https://localhost:7058/api/v1/Consulta/buscar-consultas-por-paciente?pacienteId=${selectedPatientForFilter}`);
-      if(response.ok) {
-        const result = await response.json();
-        setPatientConsultations(result.data || []);
+      // 1. Busca a lista de consultas pelo ID do paciente
+      const consultasResponse = await fetch(`https://localhost:7058/api/v1/Consulta/buscar-consultas-por-paciente?pacienteId=${selectedPatientForFilter}`);
+      if(!consultasResponse.ok) throw new Error("Falha ao buscar consultas.");
+
+      const consultasResult = await consultasResponse.json();
+      
+      if (consultasResult.sucesso && Array.isArray(consultasResult.data)) {
+        // 2. Para cada consulta, busca o nome do paciente
+        const consultasComNomePromises = consultasResult.data.map(async (consulta: Consulta) => {
+          const pacienteResponse = await fetch(`https://localhost:7058/api/v1/Paciente/buscar-paciente-por-id?id=${consulta.pacienteId}`);
+          if (pacienteResponse.ok) {
+            const pacienteResult = await pacienteResponse.json();
+            // 3. Adiciona o nome do paciente ao objeto da consulta
+            return { ...consulta, nomePaciente: pacienteResult.data.nome };
+          }
+          return { ...consulta, nomePaciente: `ID ${consulta.pacienteId}` }; // Fallback
+        });
+        
+        // 4. Espera todas as buscas terminarem e atualiza o estado
+        const consultasFinais = await Promise.all(consultasComNomePromises);
+        setPatientConsultations(consultasFinais);
       }
     } catch (error) {
       console.error("Erro ao buscar consultas:", error);
@@ -84,7 +101,6 @@ export default function ConsultasPage() {
     }
   };
 
-  // Efeito para hidratação
   useEffect(() => {
     setSelectedDate(new Date());
   }, []);
@@ -110,7 +126,7 @@ export default function ConsultasPage() {
           
           <div className="bg-white p-6 rounded-xl shadow-lg">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Buscar Histórico de Consultas</h3>
-            <div className="flex items-end gap-4">
+            <div className="flex justify-end items-end gap-4">
               <div className="flex-1">
                 <label htmlFor="patient-search" className="block text-sm font-medium text-gray-700">Selecione o Paciente</label>
                 <select
@@ -123,7 +139,7 @@ export default function ConsultasPage() {
                   <option value="" disabled>Selecione</option>
                   {allPatients.map((paciente) => (
                     <option key={paciente.id} value={paciente.id}>
-                      ID do Paciente: {paciente.usuarioId}
+                      {paciente.nome || `ID do Paciente: ${paciente.usuarioId}`}
                     </option>
                   ))}
                 </select>
@@ -135,10 +151,7 @@ export default function ConsultasPage() {
               >
                 {isSearching ? 'Buscando...' : 'Buscar'}
               </button>
-            </div >
-            
-            {/* --- AQUI ESTÁ A CORREÇÃO --- */}
-            {/* Adicionando a propriedade 'title' que estava faltando */}
+            </div>
             <div className="mt-6">
             <ConsultationList title="Resultados da Busca" consultations={patientConsultations} isLoading={isSearching} />
             </div>
