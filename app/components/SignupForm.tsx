@@ -80,7 +80,6 @@ export default function SignupForm() {
 
     const senhaHash = await hashSHA256(formData.senha);
 
-    // --- A CORREÇÃO ESTÁ AQUI ---
     const userPayload = {
       nome: formData.nome,
       email: formData.email,
@@ -92,6 +91,9 @@ export default function SignupForm() {
       autenticacaoDoisFatoresHabilitada: true,
       paciente: !isNutricionista
         ? {
+            // --- AQUI ESTÁ A CORREÇÃO ---
+            // Adicionando o campo 'nome' que a API do paciente exige
+            nome: formData.nome, 
             sexo: formData.sexo,
             dataNascimento: formData.dataNascimento,
             usuarioId: 0,
@@ -106,7 +108,6 @@ export default function SignupForm() {
         ? {
             crefNutricionista: formData.crefNutricionista,
             especialidades: formData.especialidades,
-            // Adicionamos o campo "pacientes" como uma lista vazia
             pacientes: [], 
           }
         : null,
