@@ -1,87 +1,65 @@
-import { useState } from "react";
-import { Camera } from "lucide-react";
+"use client";
 
+import { useState } from 'react';
+
+// A correção é nesta interface
 interface ComentarioModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (comentario: string, imagem?: File) => void;
+  onSubmit: (conteudo: string) => void;
+  // A LINHA QUE FALTAVA ESTÁ AQUI:
+  isSubmitting: boolean;
 }
 
-export function ComentarioModal({ isOpen, onClose, onSubmit }: ComentarioModalProps) {
-  const [comentario, setComentario] = useState("");
-  const [imagem, setImagem] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+export const ComentarioModal: React.FC<ComentarioModalProps> = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
+  const [conteudo, setConteudo] = useState("");
 
-  const handleImagemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImagem(file);
-      setPreview(URL.createObjectURL(file));
+  if (!isOpen) {
+    return null;
+  }
+
+  const handleSubmit = () => {
+    // Validação simples para não enviar comentário vazio
+    if (conteudo.trim()) {
+      onSubmit(conteudo);
     }
   };
-
-  const handleEnviar = () => {
-    if (comentario.trim()) {
-      onSubmit(comentario, imagem || undefined);
-      setComentario("");
-      setImagem(null);
-      setPreview(null);
-      onClose();
-    }
-  };
-
-  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md relative">
-        <h2 className="text-lg font-semibold mb-4 text-gray-800">Adicionar Comentário</h2>
+    // Overlay de fundo transparente
+    <div className="fixed inset-0 z-40 flex justify-center items-center p-4">
+      {/* Conteúdo do Modal */}
+      <div className="bg-white p-6 rounded-lg shadow-xl z-50 w-full max-w-lg mx-4 border border-gray-200">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">Deixe seu Comentário</h2>
+        <p className="text-gray-600 mb-4">
+          Conte ao seu nutricionista como foi a sua experiência com o plano alimentar.
+        </p>
 
         <textarea
-          className="w-full h-28 p-2 border border-gray-300 rounded mb-4"
-          value={comentario}
-          onChange={(e) => setComentario(e.target.value)}
-          placeholder="Escreva seu comentário aqui..."
+          value={conteudo}
+          onChange={(e) => setConteudo(e.target.value)}
+          className="w-full h-32 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-lime-500 focus:border-lime-500 transition"
+          placeholder="Ex: Gostei muito do café da manhã, mas achei o jantar um pouco difícil de preparar..."
+          disabled={isSubmitting}
         />
 
-        {/* Upload estilizado */}
-        <div className="mb-4">
-          <label className="flex items-center gap-2 cursor-pointer text-lime-700 hover:text-lime-900 font-medium">
-            <Camera className="w-5 h-5" />
-            Upload
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImagemChange}
-              className="hidden"
-            />
-          </label>
-        </div>
-
-        {/* Preview da imagem */}
-        {preview && (
-          <img
-            src={preview}
-            alt="Preview"
-            className="w-full h-40 object-cover rounded border mb-4"
-          />
-        )}
-
-        <div className="flex justify-end gap-2">
+        <div className="mt-6 flex justify-end gap-4">
           <button
             onClick={onClose}
-            className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300"
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:opacity-50 transition"
           >
             Cancelar
           </button>
           <button
-            onClick={handleEnviar}
-            className="bg-lime-600 text-white px-4 py-2 rounded hover:bg-lime-700"
+            onClick={handleSubmit}
+            disabled={isSubmitting || !conteudo.trim()}
+            className="px-4 py-2 bg-lime-600 text-white rounded-md hover:bg-lime-700 disabled:bg-lime-300 disabled:cursor-not-allowed transition"
           >
-            Enviar
+            {isSubmitting ? 'Enviando...' : 'Enviar Comentário'}
           </button>
         </div>
       </div>
     </div>
   );
-}
+};
