@@ -1,43 +1,48 @@
-// app/components/PlanoExistenteCard.tsx
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 // --- Interfaces ---
 interface Alimento { id: number; nome: string; }
-interface Item { id: number; quantidade: number; unidadeMedida: number; alimentoId: number; }
+interface Item { id: number; nome: string; quantidade: number; unidadeMedida: number; alimentoId: number; }
 interface Refeicao { id: number; nome: string; horario: string; itens: Item[]; }
 interface Plano { id: number; observacoesGerais: string; dataInicio: string; refeicoes?: Refeicao[]; }
 
 interface PlanoExistenteCardProps {
   plano: Plano;
-  alimentos: Alimento[];
   onFetchDetails: (planoId: number) => Promise<Plano | null>;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-export function PlanoExistenteCard({ plano, alimentos, onFetchDetails, onEdit, onDelete }: PlanoExistenteCardProps) {
+export function PlanoExistenteCard({ plano, onFetchDetails, onEdit, onDelete }: PlanoExistenteCardProps) {
   const [detalhesVisiveis, setDetalhesVisiveis] = useState(false);
   const [planoDetalhado, setPlanoDetalhado] = useState<Plano | null>(plano);
   const [isLoadingDetalhes, setIsLoadingDetalhes] = useState(false);
 
+  // Garante que o estado seja resetado se o plano mudar
+  useEffect(() => {
+    setPlanoDetalhado(plano);
+    setDetalhesVisiveis(false); // Oculta detalhes ao trocar de plano
+  }, [plano]);
+
   const handleToggleDetalhes = async () => {
-    if (planoDetalhado?.refeicoes && planoDetalhado.refeicoes.length > 0) {
-      setDetalhesVisiveis(!detalhesVisiveis);
-      return;
+    // Se já temos os detalhes e eles estão visíveis, apenas oculta.
+    if (detalhesVisiveis) {
+        setDetalhesVisiveis(false);
+        return;
     }
+    // Se não temos os detalhes ou estão ocultos, busca na API.
     setIsLoadingDetalhes(true);
     const detalhes = await onFetchDetails(plano.id);
     if (detalhes) {
       setPlanoDetalhado(detalhes);
     }
     setIsLoadingDetalhes(false);
-    setDetalhesVisiveis(true);
+    setDetalhesVisiveis(true); // Mostra os detalhes após buscar
   };
 
-  const getAlimentoNome = (id: number) => alimentos.find(a => a.id === id)?.nome || `Alimento ID ${id}`;
   const getUnidadeMedidaNome = (id: number) => {
     switch (id) {
       case 1: return "g";
@@ -51,7 +56,6 @@ export function PlanoExistenteCard({ plano, alimentos, onFetchDetails, onEdit, o
     <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg shadow-sm transition-shadow hover:shadow-md">
       <div className="flex justify-between items-start">
         <div>
-          {/* --- AQUI ESTÁ A ALTERAÇÃO --- */}
           <p className="font-bold text-lg text-gray-800">Plano Alimentar</p>
           <p className="text-sm text-gray-600">
             Início em: {format(new Date(plano.dataInicio), "dd/MM/yyyy", { locale: ptBR })}
@@ -62,7 +66,7 @@ export function PlanoExistenteCard({ plano, alimentos, onFetchDetails, onEdit, o
             onClick={handleToggleDetalhes}
             className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded-md text-sm"
           >
-            {detalhesVisiveis ? "Ocultar Detalhes" : "Ver Detalhes"}
+            {detalhesVisiveis ? "Ocultar" : "Ver Detalhes"}
           </button>
           <button onClick={onEdit} className="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-1 px-3 rounded-md text-sm">Editar</button>
           <button onClick={onDelete} className="bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded-md text-sm">Excluir</button>
@@ -86,7 +90,7 @@ export function PlanoExistenteCard({ plano, alimentos, onFetchDetails, onEdit, o
                     <ul className="mt-2 pl-4 list-disc list-inside space-y-1">
                       {refeicao.itens.map(item => (
                         <li key={item.id} className="text-sm text-gray-700">
-                          {getAlimentoNome(item.alimentoId)} - {item.quantidade}{getUnidadeMedidaNome(item.unidadeMedida)}
+                          {item.nome} - {item.quantidade}{getUnidadeMedidaNome(item.unidadeMedida)}
                         </li>
                       ))}
                     </ul>

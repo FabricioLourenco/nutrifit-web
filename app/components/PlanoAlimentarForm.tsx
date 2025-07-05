@@ -1,4 +1,3 @@
-// app/components/PlanoAlimentarForm.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -43,12 +42,10 @@ function RefeicaoForm({ refeicao, alimentos, onChange, onRemove }: { refeicao: R
         const novosItens = refeicao.itens.map(item => item.tempId === itemAtualizado.tempId ? itemAtualizado : item);
         onChange({ ...refeicao, itens: novosItens });
       };
-    
       const adicionarItem = () => {
         const novoItem: ItemRefeicao = { tempId: Date.now().toString(), alimentoId: "", quantidade: "", unidadeMedida: 1 };
         onChange({ ...refeicao, itens: [...refeicao.itens, novoItem] });
       };
-    
       const removerItem = (tempId: string) => {
         const novosItens = refeicao.itens.filter(item => item.tempId !== tempId);
         onChange({ ...refeicao, itens: novosItens });
@@ -114,9 +111,9 @@ export default function PlanoAlimentarForm({ pacienteId, onSave, initialData }: 
         observacoesGerais: initialData.observacoesGerais,
         refeicoes: initialData.refeicoes.map((r: any) => ({
           ...r,
-          tempId: r.id?.toString() || Date.now().toString() + Math.random(),
+          tempId: r.id?.toString() || `new_${Date.now()}_${Math.random()}`,
           horario: r.horario ? r.horario.substring(0, 5) : "00:00",
-          itens: r.itens.map((i: any) => ({ ...i, tempId: i.id?.toString() || Date.now().toString() + Math.random() }))
+          itens: r.itens.map((i: any) => ({ ...i, tempId: i.id?.toString() || `new_${Date.now()}_${Math.random()}` }))
         }))
       });
     } else {
@@ -129,7 +126,7 @@ export default function PlanoAlimentarForm({ pacienteId, onSave, initialData }: 
     setPlano({ ...plano, refeicoes: novasRefeicoes });
   };
   const adicionarRefeicao = () => {
-    const novaRefeicao: Refeicao = { tempId: Date.now().toString(), nome: "Café da Manhã", horario: "08:00", itens: [] };
+    const novaRefeicao: Refeicao = { tempId: `new_${Date.now()}`, nome: "Café da Manhã", horario: "08:00", itens: [] };
     setPlano({ ...plano, refeicoes: [...plano.refeicoes, novaRefeicao] });
   };
   const removerRefeicao = (tempId: string) => {
@@ -161,7 +158,6 @@ export default function PlanoAlimentarForm({ pacienteId, onSave, initialData }: 
 
   return (
     <div className="space-y-6">
-      {/* --- AQUI ESTÁ A ALTERAÇÃO --- */}
       <h3 className="text-lg font-semibold">{initialData ? `Editando Plano Alimentar` : "Criando Novo Plano"}</h3>
       <div>
         <label className="font-medium">Observações Gerais da Dieta</label>
