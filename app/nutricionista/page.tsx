@@ -27,19 +27,19 @@ export default function NutricionistaPage() {
   const [pacienteSelecionado, setPacienteSelecionado] = useState<Paciente | null>(null);
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [isLoadingPacientes, setIsLoadingPacientes] = useState(true);
-
-  // --- Novos estados para os planos alimentares ---
   const [planos, setPlanos] = useState<Plano[]>([]);
   const [isLoadingPlanos, setIsLoadingPlanos] = useState(false);
   const [planoEmEdicao, setPlanoEmEdicao] = useState<Plano | null>(null);
   const [modo, setModo] = useState<"lista" | "formulario">("lista");
-  const [alimentos, setAlimentos] = useState([]); // Estado para a lista de alimentos
+  
+  // O estado 'alimentos' foi removido, pois não é mais necessário nesta página
+  // const [alimentos, setAlimentos] = useState([]); 
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // Efeito para buscar pacientes e a lista de todos os alimentos
+  // Efeito para buscar pacientes
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const fetchMyPatients = async () => {
         setIsLoadingPacientes(true);
         try {
           const token = localStorage.getItem("authToken");
@@ -88,7 +88,7 @@ export default function NutricionistaPage() {
         }
       };
   
-      fetchInitialData();
+      fetchMyPatients();
   }, []);
 
   // Efeito para buscar os PLANOS quando um paciente é selecionado
@@ -99,7 +99,7 @@ export default function NutricionistaPage() {
     }
     const fetchPlanos = async () => {
       setIsLoadingPlanos(true);
-      setModo("lista"); // Sempre volta para a lista ao trocar de paciente
+      setModo("lista");
       try {
         const response = await fetch(`https://localhost:7058/api/v1/PlanoAlimentar/buscar-planos-alimentares-por-paciente?pacienteId=${pacienteSelecionado.id}`);
         if (response.ok) {
@@ -143,7 +143,6 @@ export default function NutricionistaPage() {
       });
       if (response.ok) {
         alert(`Plano ${isEditing ? 'editado' : 'salvo'} com sucesso!`);
-        // Força o refresh dos planos ao "selecionar" o paciente de novo
         setPacienteSelecionado(paciente => ({...paciente!})); 
       } else {
         const errorData = await response.json();
@@ -194,40 +193,21 @@ export default function NutricionistaPage() {
       <div className="flex-1 p-4 md:p-8">
         <HeaderBar toggleSidebar={toggleSidebar} />
         <main className="p-4 md:p-8">
-          {/* Dashboard Cards */}
+          {/* Dashboard Cards e Botões de Ação */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-sm text-gray-500">Total de Pacientes</p>
-              <p className="text-2xl font-bold text-green-600">{pacientes.length}</p>
-            </div>
-            <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-sm text-gray-500">Dietas Cadastradas</p>
-              <p className="text-2xl font-bold text-blue-600">{planos.length}</p>
-            </div>
-            <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-sm text-gray-500">Consultas Agendadas</p>
-              <p className="text-2xl font-bold text-orange-500">5</p>
-            </div>
-            <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-sm text-gray-500">Avaliações</p>
-              <p className="text-2xl font-bold text-purple-600">3</p>
-            </div>
+            <div className="bg-white rounded-lg shadow p-4"><p className="text-sm text-gray-500">Total de Pacientes</p><p className="text-2xl font-bold text-green-600">{pacientes.length}</p></div>
+            <div className="bg-white rounded-lg shadow p-4"><p className="text-sm text-gray-500">Dietas Cadastradas</p><p className="text-2xl font-bold text-blue-600">{planos.length}</p></div>
+            <div className="bg-white rounded-lg shadow p-4"><p className="text-sm text-gray-500">Consultas Agendadas</p><p className="text-2xl font-bold text-orange-500">5</p></div>
+            <div className="bg-white rounded-lg shadow p-4"><p className="text-sm text-gray-500">Avaliações</p><p className="text-2xl font-bold text-purple-600">3</p></div>
           </div>
-
-          {/* --- AQUI ESTÁ A CORREÇÃO --- */}
-          {/* Botões de Ação restaurados */}
           <div className="flex flex-wrap gap-4 mb-6">
             {["Meus Pacientes", "Consultas", "Relatórios", "Avaliações"].map((item) =>
               item === "Consultas" ? (
                 <Link key={item} href="/consultas" passHref>
-                  <button className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow">
-                    {item}
-                  </button>
+                  <button className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow">{item}</button>
                 </Link>
               ) : (
-                <button key={item} className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow">
-                  {item}
-                </button>
+                <button key={item} className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow">{item}</button>
               )
             )}
           </div>
@@ -244,12 +224,8 @@ export default function NutricionistaPage() {
                 <>
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-bold text-gray-800">Planos de {pacienteSelecionado.nome}</h2>
-                    {modo === "lista" && (
-                      <button onClick={handleNewClick} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">+ Novo Plano</button>
-                    )}
-                     {modo === "formulario" && (
-                      <button onClick={() => setModo("lista")} className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md">← Voltar para a Lista</button>
-                    )}
+                    {modo === "lista" && (<button onClick={handleNewClick} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">+ Novo Plano</button>)}
+                    {modo === "formulario" && (<button onClick={() => setModo("lista")} className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md">← Voltar para a Lista</button>)}
                   </div>
 
                   {modo === "lista" ? (
@@ -259,7 +235,8 @@ export default function NutricionistaPage() {
                           <PlanoExistenteCard 
                             key={plano.id} 
                             plano={plano} 
-                            alimentos={alimentos}
+                            // --- AQUI ESTÁ A CORREÇÃO ---
+                            // A propriedade 'alimentos' foi removida da chamada
                             onFetchDetails={fetchPlanoDetails}
                             onEdit={() => handleEditClick(plano)} 
                             onDelete={() => handleDeletePlano(plano.id)} 
